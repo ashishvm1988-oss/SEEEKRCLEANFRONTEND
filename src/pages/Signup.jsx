@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { ErrorBanner } from '../components/Feedback';
+import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function Signup() {
   const { user, ready, signup } = useAuth();
@@ -79,6 +80,7 @@ export default function Signup() {
     <div className="app-shell">
       <div className="screen">
         <div style={{ textAlign: 'center', margin: '12px 0 24px' }}>
+          <img src={logoBlue} alt="Seeekr" style={{ height: 34, marginBottom: 8 }} />
           <div style={{ fontSize: 26, fontWeight: 800, color: 'var(--accent)' }}>Create your account</div>
         </div>
 

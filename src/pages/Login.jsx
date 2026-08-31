@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner } from '../components/Feedback';
+import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function Login() {
   const { user, ready, login } = useAuth();
@@ -31,6 +32,7 @@ export default function Login() {
     <div className="app-shell">
       <div className="screen" style={{ justifyContent: 'center' }}>
         <div style={{ textAlign: 'center', marginBottom: 32 }}>
+          <img src={logoBlue} alt="Seeekr" style={{ height: 40, marginBottom: 10 }} />
           <div style={{ fontSize: 30, fontWeight: 800, color: 'var(--accent)' }}>Seeekr</div>
           <p style={{ color: 'var(--text-muted)', fontSize: 14, marginTop: 6 }}>
             Find trusted service providers near you
