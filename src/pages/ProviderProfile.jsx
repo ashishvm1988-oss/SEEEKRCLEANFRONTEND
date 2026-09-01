@@ -6,6 +6,15 @@ import TopBar from '../components/TopBar';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
 import { initials } from '../utils/format';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
+
+const CREDENTIAL_TYPE_LABELS = {
+  education: 'Education',
+  experience: 'Work experience',
+  certification: 'Certification',
+  project: 'Past project',
+};
+
 export default function ProviderProfile() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -13,6 +22,7 @@ export default function ProviderProfile() {
 
   const [provider, setProvider] = useState(null);
   const [portfolio, setPortfolio] = useState([]);
+  const [credentials, setCredentials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -20,11 +30,12 @@ export default function ProviderProfile() {
     let cancelled = false;
     setLoading(true);
     setError('');
-    Promise.all([api.getProvider(id), api.getPortfolio(id)])
-      .then(([p, images]) => {
+    Promise.all([api.getProvider(id), api.getPortfolio(id), api.getCredentials(id)])
+      .then(([p, images, creds]) => {
         if (cancelled) return;
         setProvider(p);
         setPortfolio(images);
+        setCredentials(creds);
       })
       .catch((err) => !cancelled && setError(err.message))
       .finally(() => !cancelled && setLoading(false));
@@ -97,6 +108,37 @@ export default function ProviderProfile() {
                   />
                 ))}
               </div>
+            )}
+
+            {credentials.length > 0 && (
+              <>
+                <div className="section-title">Credentials &amp; experience</div>
+                {credentials.map((c) => (
+                  <div className="credential-card" key={c.id}>
+                    <div className="credential-card-top">
+                      <div>
+                        <span className="credential-type-badge">
+                          {CREDENTIAL_TYPE_LABELS[c.type] || c.type}
+                        </span>
+                        <h4>{c.title}</h4>
+                        {c.organization && <p className="org">{c.organization}</p>}
+                        {c.period && <p className="period">{c.period}</p>}
+                      </div>
+                    </div>
+                    {c.description && <p className="desc">{c.description}</p>}
+                    {c.proof_url && (
+                      <a
+                        className="proof-link"
+                        href={`${API_BASE_URL}${c.proof_url}`}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        View proof ↗
+                      </a>
+                    )}
+                  </div>
+                ))}
+              </>
             )}
 
             <p className="disclosure-box">
