@@ -11,6 +11,11 @@ export function ErrorBanner({ message }) {
   return <div className="error-banner">{message}</div>;
 }
 
+export function SuccessBanner({ message }) {
+  if (!message) return null;
+  return <div className="success-banner">{message}</div>;
+}
+
 export function EmptyState({ glyph = '🔎', title, subtitle }) {
   return (
     <div className="empty-state">
