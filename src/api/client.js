@@ -70,6 +70,10 @@ export const api = {
       : { username: identifier, password };
     return request('/auth/login', { method: 'POST', body, auth: false });
   },
+  requestPasswordReset: (email) =>
+    request('/auth/forgot-password', { method: 'POST', body: { email }, auth: false }),
+  resetPassword: (email, token, password) =>
+    request('/auth/reset-password', { method: 'POST', body: { email, token, password }, auth: false }),
   signup: (payload) => request('/users', { method: 'POST', body: payload, auth: false }),
   updateProfile: (payload) => request('/users', { method: 'PUT', body: payload }),
   // Note: GET /users with no id returns every user, so "get my profile" has
@@ -106,6 +110,21 @@ export const api = {
     return request('/portfolio', { method: 'POST', body: form, isFormData: true });
   },
   deletePortfolioImage: (id) => request(`/portfolio?id=${encodeURIComponent(id)}`, { method: 'DELETE' }),
+
+  // --- credentials (education / experience / certification / project, with
+  // an optional "proof" file — a photo of a certificate/degree/etc.) ---
+  getCredentials: (userId) => request(`/credentials?user_id=${encodeURIComponent(userId)}`, { auth: false }),
+  addCredential: ({ type, title, organization, period, description, file }) => {
+    const form = new FormData();
+    form.append('type', type);
+    form.append('title', title);
+    if (organization) form.append('organization', organization);
+    if (period) form.append('period', period);
+    if (description) form.append('description', description);
+    if (file) form.append('file', file);
+    return request('/credentials', { method: 'POST', body: form, isFormData: true });
+  },
+  deleteCredential: (id) => request(`/credentials?id=${encodeURIComponent(id)}`, { method: 'DELETE' }),
 
   // --- messages ---
   getConversations: () => request('/messages/conversations'),
