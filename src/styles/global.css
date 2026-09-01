@@ -430,6 +430,16 @@ input, select, textarea { font-family: inherit; }
   margin-bottom: 14px;
 }
 
+.success-banner {
+  background: var(--success-soft);
+  color: var(--success);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
 .spinner-wrap {
   display: flex;
   align-items: center;
@@ -479,6 +489,141 @@ input, select, textarea { font-family: inherit; }
   object-fit: cover;
   background: var(--surface-alt);
   border: 1px solid var(--border);
+}
+
+/* Editable portfolio grid (Account page) — same tile size as the read-only
+   .portfolio-grid, but each photo gets a delete button and there's an
+   "add photo" tile with the same dimensions so the grid stays aligned. */
+.portfolio-tile {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1;
+}
+
+.portfolio-tile img {
+  width: 100%;
+  height: 100%;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--border);
+  display: block;
+}
+
+.portfolio-tile .remove-btn {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.portfolio-add-tile {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.portfolio-add-tile .plus { font-size: 22px; line-height: 1; }
+
+.portfolio-add-tile:hover,
+.credential-add-toggle:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.credential-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: var(--surface);
+}
+
+.credential-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.credential-type-badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border-radius: 999px;
+  padding: 3px 9px;
+  margin-bottom: 6px;
+}
+
+.credential-card h4 { margin: 0 0 2px; font-size: 14.5px; }
+.credential-card .org { font-size: 13px; color: var(--text-muted); margin: 0; }
+.credential-card .period { font-size: 12px; color: var(--text-muted); margin: 2px 0 0; }
+.credential-card .desc { font-size: 13px; color: var(--text); margin: 8px 0 0; line-height: 1.5; }
+
+.credential-card .remove-link {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px;
+  flex-shrink: 0;
+}
+
+.credential-card .proof-link {
+  display: inline-block;
+  margin-top: 10px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.credential-add-toggle {
+  width: 100%;
+  border-radius: 12px;
+  border: 1.5px dashed var(--border);
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  padding: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+
+.credential-form {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 16px;
+  background: var(--surface-alt);
 }
 
 .disclosure-box {
