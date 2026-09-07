@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { ErrorBanner, SuccessBanner } from '../components/Feedback';
+import { PasswordField } from '../components/PasswordField';
 import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function ResetPassword() {
@@ -78,30 +79,24 @@ export default function ResetPassword() {
           <SuccessBanner message="Password updated — taking you to log in…" />
         ) : (
           <form onSubmit={handleSubmit}>
-            <div className="field">
-              <label htmlFor="password">New password</label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="new-password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                minLength={8}
-                required
-              />
-            </div>
-            <div className="field">
-              <label htmlFor="confirmPassword">Confirm new password</label>
-              <input
-                id="confirmPassword"
-                type="password"
-                autoComplete="new-password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                minLength={8}
-                required
-              />
-            </div>
+            <PasswordField
+              id="password"
+              label="New password"
+              autoComplete="new-password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              minLength={8}
+              required
+            />
+            <PasswordField
+              id="confirmPassword"
+              label="Confirm new password"
+              autoComplete="new-password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              minLength={8}
+              required
+            />
             <button className="btn btn-primary btn-block" type="submit" disabled={loading}>
               {loading ? 'Updating…' : 'Update password'}
             </button>

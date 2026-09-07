@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { ErrorBanner } from '../components/Feedback';
+import { PasswordField } from '../components/PasswordField';
 import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function Login() {
@@ -53,17 +54,14 @@ export default function Login() {
               required
             />
           </div>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="current-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+          />
           <p style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
             <Link to="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }}>
               Forgot password?

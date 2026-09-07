@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { ErrorBanner } from '../components/Feedback';
+import { PasswordField } from '../components/PasswordField';
 import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function Signup() {
@@ -104,17 +105,15 @@ export default function Signup() {
             <label htmlFor="email">Email</label>
             <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
           </div>
-          <div className="field">
-            <label htmlFor="password">Password</label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              minLength={8}
-              required
-            />
-          </div>
+          <PasswordField
+            id="password"
+            label="Password"
+            autoComplete="new-password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            minLength={8}
+            required
+          />
           <div className="field">
             <label htmlFor="city">City</label>
             <input id="city" value={city} onChange={(e) => setCity(e.target.value)} placeholder="e.g. Bangalore" />
