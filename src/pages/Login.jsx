@@ -1,17 +1,22 @@
 import { useState } from 'react';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { ErrorBanner } from '../components/Feedback';
+import { ErrorBanner, InfoBanner } from '../components/Feedback';
 import { PasswordField } from '../components/PasswordField';
 import logoBlue from '../assets/logo-mark-blue.png';
 
 export default function Login() {
   const { user, ready, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  // True only when arriving here right after a successful password
+  // reset (see ResetPassword.jsx) — stays visible for the whole visit
+  // so it's still there to explain a failed retry, not just the first try.
+  const showAutofillHint = Boolean(location.state?.justReset);
 
   if (ready && user) return <Navigate to="/home" replace />;
 
@@ -61,6 +66,12 @@ export default function Login() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
+          />
+          <InfoBanner
+            message={
+              showAutofillHint &&
+              "If this fills in on its own and doesn't work, your browser may be suggesting your old, saved password — clear the field and type the new one."
+            }
           />
           <p style={{ textAlign: 'right', marginTop: -8, marginBottom: 16 }}>
             <Link to="/forgot-password" style={{ color: 'var(--text-muted)', fontSize: 13, fontWeight: 600 }}>

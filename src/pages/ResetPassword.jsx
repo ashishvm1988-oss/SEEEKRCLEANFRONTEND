@@ -56,7 +56,10 @@ export default function ResetPassword() {
     try {
       await api.resetPassword(email, token, password);
       setDone(true);
-      setTimeout(() => navigate('/login', { replace: true }), 2000);
+      // Flag this navigation so the login page knows to warn about
+      // autofill offering the old (now-invalid) saved password — the
+      // #1 cause of "I just reset it but it still says wrong password".
+      setTimeout(() => navigate('/login', { replace: true, state: { justReset: true } }), 2000);
     } catch (err) {
       setError(err.message);
     } finally {
