@@ -16,6 +16,11 @@ export function SuccessBanner({ message }) {
   return <div className="success-banner">{message}</div>;
 }
 
+export function InfoBanner({ message }) {
+  if (!message) return null;
+  return <div className="info-banner">{message}</div>;
+}
+
 export function EmptyState({ glyph = '🔎', title, subtitle }) {
   return (
     <div className="empty-state">
