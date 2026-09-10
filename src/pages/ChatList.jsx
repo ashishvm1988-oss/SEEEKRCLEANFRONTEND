@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
-import { initials, timeAgo } from '../utils/format';
+import { Avatar } from '../components/Avatar';
+import { timeAgo } from '../utils/format';
 
 export default function ChatList() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export default function ChatList() {
       ) : (
         conversations.map((c) => (
           <div key={c.other_user_id} className="conversation-row" onClick={() => navigate(`/chat/${c.other_user_id}`)}>
-            <div className="avatar">{initials(c.user.username)}</div>
+            <Avatar url={c.user.avatar_url} name={c.user.username} />
             <div className="meta">
               <div className="name">
                 <span>{c.user.username}</span>

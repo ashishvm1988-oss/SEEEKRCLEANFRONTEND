@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Spinner, ErrorBanner } from '../components/Feedback';
-import { initials, formatDate } from '../utils/format';
+import { Avatar } from '../components/Avatar';
+import { formatDate } from '../utils/format';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -336,6 +337,10 @@ export default function Account() {
   const [subscription, setSubscription] = useState(null);
   const [subLoading, setSubLoading] = useState(user?.role === 'provider');
 
+  const [avatarUploading, setAvatarUploading] = useState(false);
+  const [avatarError, setAvatarError] = useState('');
+  const avatarInputRef = useRef(null);
+
   useEffect(() => {
     if (user?.role !== 'provider') return;
     let cancelled = false;
@@ -369,15 +374,51 @@ export default function Account() {
     navigate('/login', { replace: true });
   }
 
+  async function handleAvatarChange(e) {
+    const file = e.target.files?.[0];
+    e.target.value = ''; // allow picking the same file again later
+    if (!file) return;
+
+    setAvatarError('');
+    setAvatarUploading(true);
+    try {
+      await api.uploadAvatar(file);
+      await refreshUser();
+    } catch (err) {
+      setAvatarError(err.message);
+    } finally {
+      setAvatarUploading(false);
+    }
+  }
+
   if (!user) return null;
 
   return (
     <div className="screen">
       <div className="profile-hero">
-        <div className="avatar">{initials(user.username)}</div>
+        <div className="avatar-upload">
+          <Avatar url={user.avatar_url} name={user.username} />
+          <button
+            type="button"
+            className="avatar-edit-btn"
+            onClick={() => avatarInputRef.current?.click()}
+            disabled={avatarUploading}
+            aria-label="Change profile photo"
+          >
+            {avatarUploading ? '…' : '✎'}
+          </button>
+          <input
+            ref={avatarInputRef}
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={handleAvatarChange}
+          />
+        </div>
         <h2>{user.username}</h2>
         <div className="sub">{user.email}</div>
         <span className="chip" style={{ marginTop: 4 }}>{user.role === 'provider' ? 'Service provider' : 'Customer'}</span>
+        <ErrorBanner message={avatarError} />
       </div>
 
       {user.role === 'provider' && (

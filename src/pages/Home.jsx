@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
-import { categoryIcon, initials } from '../utils/format';
+import { Avatar } from '../components/Avatar';
+import { categoryIcon } from '../utils/format';
 
 export default function Home() {
   const { user } = useAuth();
@@ -75,7 +76,7 @@ export default function Home() {
           ) : (
             providers.map((p) => (
               <div key={p.id} className="provider-card" onClick={() => navigate(`/provider/${p.id}`)}>
-                <div className="avatar">{initials(p.username)}</div>
+                <Avatar url={p.avatar_url} name={p.username} />
                 <div className="info">
                   <h3>{p.username}</h3>
                   <p>{p.about || (p.services[0] ? p.services.join(', ') : p.city)}</p>

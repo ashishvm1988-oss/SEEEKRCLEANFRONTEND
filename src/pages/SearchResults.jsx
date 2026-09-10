@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { api } from '../api/client';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
-import { initials } from '../utils/format';
+import { Avatar } from '../components/Avatar';
 
 export default function SearchResults() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,7 +72,7 @@ export default function SearchResults() {
       ) : (
         results.map((p) => (
           <div key={p.id} className="provider-card" onClick={() => navigate(`/provider/${p.id}`)}>
-            <div className="avatar">{initials(p.username)}</div>
+            <Avatar url={p.avatar_url} name={p.username} />
             <div className="info">
               <h3>{p.username}</h3>
               <p>{p.about || p.city || 'No description yet'}</p>

@@ -4,7 +4,7 @@ import { api } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import TopBar from '../components/TopBar';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
-import { initials } from '../utils/format';
+import { Avatar } from '../components/Avatar';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -56,7 +56,7 @@ export default function ProviderProfile() {
         ) : (
           <>
             <div className="profile-hero">
-              <div className="avatar">{initials(provider.username)}</div>
+              <Avatar url={provider.avatar_url} name={provider.username} />
               <h2>{provider.username}</h2>
               <div className="sub">{provider.city || 'Location not set'}</div>
               {provider.average_rating && (
