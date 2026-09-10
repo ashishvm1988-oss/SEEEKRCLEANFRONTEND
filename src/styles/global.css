@@ -408,6 +408,14 @@ input, select, textarea { font-family: inherit; }
   flex-shrink: 0;
 }
 
+/* Applied alongside .avatar when an <img> renders a real photo instead of
+   initials — keeps every existing .avatar sizing rule (including the
+   .profile-hero override) working unchanged, just cropped to fill it. */
+.avatar-photo {
+  object-fit: cover;
+  display: block;
+}
+
 .provider-card .info { flex: 1; min-width: 0; }
 .provider-card h3 { margin: 0 0 2px; font-size: 15px; font-weight: 700; }
 .provider-card p { margin: 0; font-size: 13px; color: var(--text-muted); }
@@ -509,6 +517,29 @@ input, select, textarea { font-family: inherit; }
 .profile-hero .avatar { width: 84px; height: 84px; border-radius: 22px; font-size: 28px; }
 .profile-hero h2 { margin: 4px 0 0; font-size: 19px; }
 .profile-hero .sub { color: var(--text-muted); font-size: 13.5px; }
+
+/* Wraps the profile-hero avatar so the edit button can sit pinned to its
+   corner without disturbing the avatar's own sizing rules above. */
+.avatar-upload { position: relative; display: inline-block; }
+.avatar-edit-btn {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--bg, #fff);
+  background: var(--accent);
+  color: #fff;
+  font-size: 13px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+}
+.avatar-edit-btn:disabled { opacity: 0.6; cursor: default; }
 
 .action-row { display: flex; gap: 10px; margin-bottom: 22px; }
 .action-row .btn { flex: 1; }
