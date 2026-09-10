@@ -80,6 +80,11 @@ export const api = {
   // to go through the id-filtered form using the id we already have cached
   // from login/signup.
   getUserById: (id) => request(`/users?id=${encodeURIComponent(id)}`),
+  uploadAvatar: (file) => {
+    const form = new FormData();
+    form.append('file', file);
+    return request('/users/avatar', { method: 'POST', body: form, isFormData: true });
+  },
 
   // --- categories ---
   getCategories: () => request('/category/all', { auth: false }),
