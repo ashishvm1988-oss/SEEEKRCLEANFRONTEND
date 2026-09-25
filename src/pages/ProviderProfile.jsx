@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import TopBar from '../components/TopBar';
 import { Spinner, ErrorBanner, EmptyState } from '../components/Feedback';
 import { Avatar } from '../components/Avatar';
+import { Lightbox } from '../components/Lightbox';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -25,6 +26,7 @@ export default function ProviderProfile() {
   const [credentials, setCredentials] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [lightboxIndex, setLightboxIndex] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,11 +102,12 @@ export default function ProviderProfile() {
               <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No portfolio images yet.</p>
             ) : (
               <div className="portfolio-grid">
-                {portfolio.map((img) => (
+                {portfolio.map((img, i) => (
                   <img
                     key={img.id}
-                    src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080'}${img.image_url}`}
+                    src={`${API_BASE_URL}${img.image_url}`}
                     alt={img.caption || 'Portfolio image'}
+                    onClick={() => setLightboxIndex(i)}
                   />
                 ))}
               </div>
@@ -146,6 +149,16 @@ export default function ProviderProfile() {
               directly. Please use your own judgment when hiring — Seeekr is not liable for the quality,
               safety, or outcome of services booked through the app.
             </p>
+
+            <Lightbox
+              images={portfolio.map((img) => ({
+                src: `${API_BASE_URL}${img.image_url}`,
+                alt: img.caption || 'Portfolio image',
+              }))}
+              index={lightboxIndex}
+              onClose={() => setLightboxIndex(null)}
+              onNavigate={setLightboxIndex}
+            />
           </>
         )}
       </div>

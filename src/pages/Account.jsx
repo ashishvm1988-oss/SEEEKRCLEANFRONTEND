@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { api } from '../api/client';
 import { Spinner, ErrorBanner } from '../components/Feedback';
 import { Avatar } from '../components/Avatar';
+import { Lightbox } from '../components/Lightbox';
 import { formatDate } from '../utils/format';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
@@ -27,6 +28,7 @@ function PortfolioSection({ userId }) {
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
+  const [lightboxIndex, setLightboxIndex] = useState(null);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -83,9 +85,13 @@ function PortfolioSection({ userId }) {
         <Spinner />
       ) : (
         <div className="portfolio-grid">
-          {images.map((img) => (
+          {images.map((img, i) => (
             <div className="portfolio-tile" key={img.id}>
-              <img src={`${API_BASE_URL}${img.image_url}`} alt={img.caption || 'Portfolio image'} />
+              <img
+                src={`${API_BASE_URL}${img.image_url}`}
+                alt={img.caption || 'Portfolio image'}
+                onClick={() => setLightboxIndex(i)}
+              />
               <button
                 type="button"
                 className="remove-btn"
@@ -114,6 +120,16 @@ function PortfolioSection({ userId }) {
           />
         </div>
       )}
+
+      <Lightbox
+        images={images.map((img) => ({
+          src: `${API_BASE_URL}${img.image_url}`,
+          alt: img.caption || 'Portfolio image',
+        }))}
+        index={lightboxIndex}
+        onClose={() => setLightboxIndex(null)}
+        onNavigate={setLightboxIndex}
+      />
     </>
   );
 }
