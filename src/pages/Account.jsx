@@ -5,7 +5,7 @@ import { api } from '../api/client';
 import { Spinner, ErrorBanner } from '../components/Feedback';
 import { Avatar } from '../components/Avatar';
 import { Lightbox } from '../components/Lightbox';
-import { formatDate } from '../utils/format';
+import { formatDate, formatTime12h } from '../utils/format';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
@@ -339,6 +339,321 @@ function CredentialsSection() {
   );
 }
 
+const WEEKDAYS = [
+  { value: 1, label: 'Monday' },
+  { value: 2, label: 'Tuesday' },
+  { value: 3, label: 'Wednesday' },
+  { value: 4, label: 'Thursday' },
+  { value: 5, label: 'Friday' },
+  { value: 6, label: 'Saturday' },
+  { value: 0, label: 'Sunday' },
+];
+
+const SLOT_LENGTHS = [
+  { value: 15, label: '15 minutes' },
+  { value: 30, label: '30 minutes' },
+  { value: 60, label: '1 hour' },
+  { value: 90, label: '1.5 hours' },
+  { value: 120, label: '2 hours' },
+];
+
+function defaultDayState() {
+  return Object.fromEntries(WEEKDAYS.map((d) => [d.value, { enabled: false, start: '10:00', end: '18:00' }]));
+}
+
+// Lets a provider publish their weekly working hours. Customers then see a
+// slot grid on the provider's public profile and can request a slot —
+// which shows up below (BookingsSection) for the provider to accept or
+// decline, rather than booking the slot outright.
+function AvailabilitySection({ userId }) {
+  const [days, setDays] = useState(defaultDayState);
+  const [slotMinutes, setSlotMinutes] = useState(60);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .getAvailability(userId)
+      .then((rows) => {
+        if (cancelled || !rows.length) return;
+        setSlotMinutes(rows[0].slot_minutes);
+        setDays(() => {
+          const next = defaultDayState();
+          for (const r of rows) {
+            next[r.day_of_week] = { enabled: true, start: r.start_time, end: r.end_time };
+          }
+          return next;
+        });
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  function toggleDay(value) {
+    setSaved(false);
+    setDays((prev) => ({ ...prev, [value]: { ...prev[value], enabled: !prev[value].enabled } }));
+  }
+
+  function updateDayTime(value, field, time) {
+    setSaved(false);
+    setDays((prev) => ({ ...prev, [value]: { ...prev[value], [field]: time } }));
+  }
+
+  async function handleSave() {
+    setError('');
+    setSaved(false);
+    const enabledDays = WEEKDAYS.filter((d) => days[d.value].enabled);
+    for (const d of enabledDays) {
+      if (days[d.value].start >= days[d.value].end) {
+        setError(`${d.label}: end time must be after start time.`);
+        return;
+      }
+    }
+    setSaving(true);
+    try {
+      await api.setAvailability(
+        enabledDays.map((d) => ({
+          day_of_week: d.value,
+          start_time: days[d.value].start,
+          end_time: days[d.value].end,
+          slot_minutes: slotMinutes,
+        }))
+      );
+      setSaved(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="section-title">Booking hours</div>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: -8, marginBottom: 14 }}>
+        Turn on the days you work and set your hours. Customers will see open slots on your profile
+        and can request one — you decide whether to accept each request.
+      </p>
+      <ErrorBanner message={error} />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <div className="field">
+            <label htmlFor="slot-length">Slot length</label>
+            <select
+              id="slot-length"
+              value={slotMinutes}
+              onChange={(e) => {
+                setSlotMinutes(Number(e.target.value));
+                setSaved(false);
+              }}
+            >
+              {SLOT_LENGTHS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="availability-days">
+            {WEEKDAYS.map((d) => {
+              const state = days[d.value];
+              return (
+                <div className="availability-day-row" key={d.value}>
+                  <label className="availability-day-toggle">
+                    <input type="checkbox" checked={state.enabled} onChange={() => toggleDay(d.value)} />
+                    {d.label}
+                  </label>
+                  {state.enabled && (
+                    <div className="availability-day-times">
+                      <input
+                        type="time"
+                        value={state.start}
+                        onChange={(e) => updateDayTime(d.value, 'start', e.target.value)}
+                      />
+                      <span>to</span>
+                      <input
+                        type="time"
+                        value={state.end}
+                        onChange={(e) => updateDayTime(d.value, 'end', e.target.value)}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={handleSave}
+            disabled={saving}
+            style={{ marginTop: 14 }}
+          >
+            {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save booking hours'}
+          </button>
+        </>
+      )}
+    </>
+  );
+}
+
+// Shows booking requests this provider has received (with accept/decline),
+// and — for any account, customer or provider — the bookings they've made
+// against someone else's schedule.
+function BookingsSection({ isProvider }) {
+  const [data, setData] = useState({ as_customer: [], as_provider: [] });
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [actingId, setActingId] = useState(null);
+
+  function load() {
+    return api
+      .getMyBookings()
+      .then((d) => setData(d))
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleRespond(id, action) {
+    setActingId(id);
+    setError('');
+    try {
+      await api.respondToBooking(id, action);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  async function handleCancel(id) {
+    setActingId(id);
+    setError('');
+    try {
+      await api.cancelBooking(id);
+      await load();
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setActingId(null);
+    }
+  }
+
+  const incoming = data.as_provider.filter((b) => b.status === 'pending');
+  const pastIncoming = data.as_provider.filter((b) => b.status !== 'pending');
+
+  return (
+    <>
+      {isProvider && (
+        <>
+          <div className="section-title">Booking requests</div>
+          <ErrorBanner message={error} />
+          {loading ? (
+            <Spinner />
+          ) : incoming.length === 0 && pastIncoming.length === 0 ? (
+            <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No one has requested a booking yet.</p>
+          ) : (
+            <>
+              {incoming.map((b) => (
+                <div className="booking-card" key={b.id}>
+                  <div className="booking-card-top">
+                    <div>
+                      <strong>{b.other_user?.username || 'Customer'}</strong>
+                      <p className="booking-when">{formatDate(b.booking_date)} · {formatTime12h(b.start_time)}</p>
+                      {b.other_user?.contact && <p className="booking-contact">📞 {b.other_user.contact}</p>}
+                    </div>
+                    <span className="status-pill status-pending">Pending</span>
+                  </div>
+                  <div style={{ display: 'flex', gap: 10, marginTop: 10 }}>
+                    <button
+                      type="button"
+                      className="btn btn-secondary"
+                      disabled={actingId === b.id}
+                      onClick={() => handleRespond(b.id, 'decline')}
+                    >
+                      Decline
+                    </button>
+                    <button
+                      type="button"
+                      className="btn btn-primary"
+                      style={{ flex: 1 }}
+                      disabled={actingId === b.id}
+                      onClick={() => handleRespond(b.id, 'confirm')}
+                    >
+                      {actingId === b.id ? '…' : 'Accept'}
+                    </button>
+                  </div>
+                </div>
+              ))}
+              {pastIncoming.map((b) => (
+                <div className="booking-card booking-card-muted" key={b.id}>
+                  <div className="booking-card-top">
+                    <div>
+                      <strong>{b.other_user?.username || 'Customer'}</strong>
+                      <p className="booking-when">{formatDate(b.booking_date)} · {formatTime12h(b.start_time)}</p>
+                    </div>
+                    <span className={`status-pill status-${b.status}`}>{b.status}</span>
+                  </div>
+                  {b.status === 'confirmed' && (
+                    <button
+                      type="button"
+                      className="remove-link"
+                      disabled={actingId === b.id}
+                      onClick={() => handleCancel(b.id)}
+                    >
+                      Cancel
+                    </button>
+                  )}
+                </div>
+              ))}
+            </>
+          )}
+        </>
+      )}
+
+      <div className="section-title">My bookings</div>
+      {!loading && data.as_customer.length === 0 ? (
+        <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>You haven't requested a booking yet.</p>
+      ) : (
+        data.as_customer.map((b) => (
+          <div className="booking-card" key={b.id}>
+            <div className="booking-card-top">
+              <div>
+                <strong>{b.other_user?.username || 'Provider'}</strong>
+                <p className="booking-when">{formatDate(b.booking_date)} · {formatTime12h(b.start_time)}</p>
+              </div>
+              <span className={`status-pill status-${b.status}`}>{b.status}</span>
+            </div>
+            {['pending', 'confirmed'].includes(b.status) && (
+              <button
+                type="button"
+                className="remove-link"
+                disabled={actingId === b.id}
+                onClick={() => handleCancel(b.id)}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
+        ))
+      )}
+    </>
+  );
+}
+
 export default function Account() {
   const { user, logout, refreshUser } = useAuth();
   const navigate = useNavigate();
@@ -457,8 +772,11 @@ export default function Account() {
           )}
           <PortfolioSection userId={user.id} />
           <CredentialsSection />
+          <AvailabilitySection userId={user.id} />
         </>
       )}
+
+      <BookingsSection isProvider={user.role === 'provider'} />
 
       <div className="section-title">Profile</div>
       <ErrorBanner message={error} />
