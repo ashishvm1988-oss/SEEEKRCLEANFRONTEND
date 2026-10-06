@@ -36,6 +36,16 @@ export function timeAgo(dateString) {
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
+// '14:30' -> '2:30 PM'. Used for schedule/booking slot times, which the API
+// always sends as 24-hour 'HH:MM' strings.
+export function formatTime12h(hhmm) {
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h % 12 === 0 ? 12 : h % 12;
+  return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
 export function formatDate(dateString) {
   if (!dateString) return '';
   return new Date(dateString).toLocaleDateString(undefined, {
