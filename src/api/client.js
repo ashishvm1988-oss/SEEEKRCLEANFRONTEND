@@ -139,4 +139,16 @@ export const api = {
 
   // --- subscription ---
   getMySubscription: () => request('/subscriptions/me'),
+
+  // --- scheduling / bookings ---
+  getAvailability: (providerId) =>
+    request(`/schedule/availability?provider_id=${encodeURIComponent(providerId)}`, { auth: false }),
+  setAvailability: (days) => request('/schedule/availability', { method: 'POST', body: { days } }),
+  getSlots: (providerId, date) =>
+    request(`/schedule/slots?provider_id=${encodeURIComponent(providerId)}&date=${encodeURIComponent(date)}`, { auth: false }),
+  bookSlot: (providerId, date, startTime) =>
+    request('/schedule/book', { method: 'POST', body: { provider_id: providerId, date, start_time: startTime } }),
+  respondToBooking: (id, action) => request('/schedule/respond', { method: 'POST', body: { id, action } }),
+  cancelBooking: (id) => request('/schedule/cancel', { method: 'POST', body: { id } }),
+  getMyBookings: () => request('/schedule/bookings/mine'),
 };
