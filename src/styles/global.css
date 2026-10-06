@@ -1148,3 +1148,189 @@ input, select, textarea { font-family: inherit; }
   .lightbox-prev { left: 8px; }
   .lightbox-next { right: 8px; }
 }
+
+/* --- Provider availability editor (Account page) --- */
+
+.availability-days {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.availability-day-row {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px 14px;
+  background: var(--surface-alt);
+}
+
+.availability-day-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.availability-day-toggle input { width: 17px; height: 17px; accent-color: var(--accent); }
+
+.availability-day-times {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+  padding-left: 27px;
+}
+
+.availability-day-times input[type="time"] {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.availability-day-times span { font-size: 12.5px; color: var(--text-muted); }
+
+/* --- Booking requests / my bookings (Account page) --- */
+
+.booking-card {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+  background: var(--surface);
+}
+
+.booking-card-muted { opacity: 0.72; }
+
+.booking-card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.booking-card-top strong { font-size: 14.5px; }
+
+.booking-when { font-size: 13px; color: var(--text-muted); margin: 3px 0 0; }
+.booking-contact { font-size: 12.5px; color: var(--text-muted); margin: 2px 0 0; }
+
+.booking-card .remove-link {
+  background: none;
+  border: none;
+  color: var(--danger);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 0 0;
+}
+
+.status-pill {
+  display: inline-block;
+  font-size: 10.5px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 9px;
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.status-pending { background: var(--rating-soft); color: var(--rating); }
+.status-confirmed { background: var(--success-soft); color: var(--success); }
+.status-declined,
+.status-cancelled { background: var(--danger-soft); color: var(--danger); }
+
+/* --- Book-an-appointment widget (provider's public profile) --- */
+
+.schedule-notice {
+  background: var(--success-soft);
+  color: var(--success);
+  border-radius: 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.schedule-date-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  margin-bottom: 14px;
+}
+
+.schedule-date-pill {
+  flex-shrink: 0;
+  border: 1px solid var(--border);
+  background: var(--surface-alt);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.schedule-date-pill.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--accent-contrast);
+}
+
+.schedule-slot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.schedule-slot {
+  border-radius: 10px;
+  padding: 9px 6px;
+  font-size: 12.5px;
+  font-weight: 700;
+  text-align: center;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.schedule-slot:disabled { cursor: not-allowed; }
+
+.schedule-slot-available {
+  background: var(--success-soft);
+  color: var(--success);
+  border-color: var(--success);
+}
+
+.schedule-slot-taken {
+  background: var(--danger-soft);
+  color: var(--danger);
+  opacity: 0.8;
+}
+
+.schedule-slot-past {
+  background: var(--surface-alt);
+  color: var(--text-muted);
+  opacity: 0.6;
+}
+
+.schedule-slot-mine-pending {
+  background: var(--rating-soft);
+  color: var(--rating);
+  border-color: var(--rating);
+}
+
+.schedule-slot-mine-confirmed {
+  background: var(--accent-soft);
+  color: var(--accent-strong);
+  border-color: var(--accent);
+}
