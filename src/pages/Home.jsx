@@ -59,7 +59,11 @@ export default function Home() {
           <div className="section-title">Browse categories</div>
           <div className="category-grid">
             {categories.map((cat) => (
-              <div key={cat.id} className="category-tile" onClick={() => navigate(`/category/${cat.id}`)}>
+              <div
+                key={cat.id}
+                className="category-tile"
+                onClick={() => navigate(`/search?category_id=${cat.id}`)}
+              >
                 <div className="swatch" style={{ background: cat.color || 'var(--accent)' }}>
                   {categoryIcon(cat.name)}
                 </div>

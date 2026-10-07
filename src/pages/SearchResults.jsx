@@ -18,6 +18,28 @@ export default function SearchResults() {
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [categoryName, setCategoryName] = useState('');
+
+  // Category tiles on Home link straight here (no more category -> subcategory
+  // drill-down screen), so when we're filtered to one category, name it in the
+  // heading rather than showing a generic "Search" title with no context.
+  useEffect(() => {
+    if (!categoryId) {
+      setCategoryName('');
+      return;
+    }
+    let cancelled = false;
+    api
+      .getCategories()
+      .then((cats) => {
+        if (cancelled) return;
+        setCategoryName(cats.find((c) => String(c.id) === String(categoryId))?.name || '');
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [categoryId]);
 
   useEffect(() => {
     setQInput(q);
@@ -50,7 +72,19 @@ export default function SearchResults() {
 
   return (
     <div className="screen">
-      <div className="section-title" style={{ marginTop: 4 }}>Search</div>
+      <div className="section-title" style={{ marginTop: 4 }}>
+        {categoryName || 'Search'}
+      </div>
+      {categoryId && (
+        <button
+          type="button"
+          className="chip"
+          style={{ marginBottom: 14, cursor: 'pointer' }}
+          onClick={() => navigate('/search')}
+        >
+          × Clear category
+        </button>
+      )}
 
       <form onSubmit={applyFilters} style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 18 }}>
         <div className="search-bar">
