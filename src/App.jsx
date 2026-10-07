@@ -6,7 +6,6 @@ import Signup from './pages/Signup';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
 import Home from './pages/Home';
-import CategoryDetail from './pages/CategoryDetail';
 import SearchResults from './pages/SearchResults';
 import ProviderProfile from './pages/ProviderProfile';
 import ChatList from './pages/ChatList';
@@ -24,7 +23,6 @@ export default function App() {
 
       <Route element={<Layout />}>
         <Route path="/home" element={<Home />} />
-        <Route path="/category/:id" element={<CategoryDetail />} />
         <Route path="/search" element={<SearchResults />} />
         <Route path="/provider/:id" element={<ProviderProfile />} />
         <Route path="/chat" element={<ChatList />} />
