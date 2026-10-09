@@ -1,16 +1,16 @@
 // Small display helpers shared across screens.
 
 const CATEGORY_ICONS = {
-  'Personal Trainers': '🏋️',
-  'Physiotherapists': '🩹',
-  'Yoga Instructors': '🧘',
-  'Nannies & Babysitters': '👶',
-  'Movers & Packers': '📦',
+  'Accountants': '🧮',
+  'Legal Advisors': '⚖️',
   'Interior Designers': '🛋️',
+  'Tutors': '📚',
+  'Personal Trainers': '🏋️',
   'Event Planners': '🎉',
-  'Salon & Grooming at Home': '💇',
-  'Mental Health Counsellors': '🧠',
-  'Financial Advisors': '💰',
+  'Yoga Instructors': '🧘',
+  'Physiotherapists': '🩹',
+  'Nutritionists': '🥗',
+  'Wellness Counsellors': '🧠',
 };
 
 export function categoryIcon(name) {
