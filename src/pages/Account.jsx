@@ -361,6 +361,103 @@ function defaultDayState() {
   return Object.fromEntries(WEEKDAYS.map((d) => [d.value, { enabled: false, start: '10:00', end: '18:00' }]));
 }
 
+// Lets a provider pick which categories they offer services in — the same
+// flattened category-as-tag picker Signup uses, but editable after the
+// fact. This didn't exist before (Signup was a one-time, write-only step):
+// the backend's PUT /users already accepted sub_category_ids and fully
+// replaced a provider's tags (see syncProviderServices), the frontend just
+// never gave anyone a way to call it again. That gap mattered more than it
+// looked: the two category-taxonomy migrations (Oct 7, Oct 9) each wiped
+// and re-created the categories table, which cascades to sub_category and
+// then to provider_subcategories — so every provider who signed up before
+// the final taxonomy landed had their services silently cleared, with no
+// way to notice or fix it until now.
+function ServicesSection({ userId }) {
+  const [subcategories, setSubcategories] = useState([]); // flattened {id, name} across all categories
+  const [selectedTags, setSelectedTags] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    Promise.all([api.getCategories(), api.getProvider(userId)])
+      .then(async ([cats, provider]) => {
+        const all = (await Promise.all(cats.map((c) => api.getSubcategories(c.id)))).flat();
+        if (cancelled) return;
+        setSubcategories(all);
+        const currentNames = new Set(provider?.services || []);
+        setSelectedTags(all.filter((sc) => currentNames.has(sc.name)).map((sc) => sc.id));
+      })
+      .catch((err) => !cancelled && setError(err.message))
+      .finally(() => !cancelled && setLoading(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [userId]);
+
+  function toggleTag(id) {
+    setSaved(false);
+    setSelectedTags((prev) => (prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]));
+  }
+
+  async function handleSave() {
+    if (!selectedTags.length) {
+      setError('Pick at least one service you offer.');
+      return;
+    }
+    setError('');
+    setSaved(false);
+    setSaving(true);
+    try {
+      await api.updateProfile({ sub_category_ids: selectedTags });
+      setSaved(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="section-title">Services you offer</div>
+      <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: -8, marginBottom: 14 }}>
+        Pick every category you work in — customers searching that category find you here. You can
+        come back and change this any time.
+      </p>
+      <ErrorBanner message={error} />
+      {loading ? (
+        <Spinner />
+      ) : (
+        <>
+          <div className="tag-grid">
+            {subcategories.map((sc) => (
+              <span
+                key={sc.id}
+                className={`tag${selectedTags.includes(sc.id) ? ' selected' : ''}`}
+                onClick={() => toggleTag(sc.id)}
+              >
+                {sc.name}
+              </span>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="btn btn-primary btn-block"
+            onClick={handleSave}
+            disabled={saving}
+            style={{ marginTop: 14 }}
+          >
+            {saving ? 'Saving…' : saved ? 'Saved ✓' : 'Save services'}
+          </button>
+        </>
+      )}
+    </>
+  );
+}
+
 // Lets a provider publish their weekly working hours. Customers then see a
 // slot grid on the provider's public profile and can request a slot —
 // which shows up below (BookingsSection) for the provider to accept or
@@ -770,6 +867,7 @@ export default function Account() {
           ) : (
             <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>No subscription found.</p>
           )}
+          <ServicesSection userId={user.id} />
           <PortfolioSection userId={user.id} />
           <CredentialsSection />
           <AvailabilitySection userId={user.id} />
